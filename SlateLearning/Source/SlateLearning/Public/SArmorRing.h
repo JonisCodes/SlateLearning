@@ -26,7 +26,16 @@ public:
 		int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 	
 	virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
+	virtual bool ComputeVolatility() const override { return true; }
 	
 private:
 	TAttribute<float> ArmorPercent;
+	
+	// Cached geometry only recalculate when percent changes
+	mutable TArray<FVector2D> CachedBackgroundPoints;
+	mutable TArray<FVector2D> CachedArcPoints;
+	mutable float CachedPercent = -1.f;
+	mutable FVector2D CachedSize = FVector2D::ZeroVector;
+	
+	void RebuildGeometry(const FGeometry& AllottedGeometry) const;
 };
