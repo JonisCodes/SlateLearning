@@ -1,5 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+using System.Reflection;
 using UnrealBuildTool;
 
 public class SlateLearning : ModuleRules
@@ -25,6 +26,8 @@ public class SlateLearning : ModuleRules
 		{
 			ModuleDirectory + "/Public",
 			ModuleDirectory + "/Public/Narrative",
+			ModuleDirectory + "/Public/UI",
+			ModuleDirectory + "/Public/Inventory"
 		});
 
 		// Uncomment if you are using online features

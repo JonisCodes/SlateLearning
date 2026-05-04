@@ -5,6 +5,7 @@
 #include "MySlateCharacter.h"
 #include "Animation/CurveSequence.h"
 #include "FSlatePracticeStyle.h"
+#include "Inventory/SInventoryGrid.h"
 #include "Styling/AppStyle.h"
 #include "Widgets/SInvalidationPanel.h"
 #include "Widgets/Notifications/SProgressBar.h"
@@ -75,13 +76,13 @@ void SMyHUD::Construct(const FArguments& InArgs)
 				.ArmorPercent(this, &SMyHUD::GetArmorPercent)
 			]
 			
-			+ SOverlay::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Top)
-			[
-				SNew(SStatList)
-				.StatRows(this, &SMyHUD::GetStatRows)
-			]
+			// + SOverlay::Slot()
+			// .HAlign(HAlign_Left)
+			// .VAlign(VAlign_Top)
+			// [
+			// 	SNew(SStatList)
+			// 	.StatRows(this, &SMyHUD::GetStatRows)
+			// ]
 		]
 
 	];

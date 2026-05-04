@@ -6,6 +6,7 @@
 class SArmorRing;
 struct FStatRow;
 class AMySlateCharacter;
+class SInventoryGrid;
 
 class SLATELEARNING_API SMyHUD : public SCompoundWidget
 {
@@ -46,5 +47,5 @@ private:
 	TWeakObjectPtr<AMySlateCharacter> OwningCharacter;
 	
 	TSharedPtr<SArmorRing> ArmorRingWidget;
-	
+	TSharedPtr<SInventoryGrid> InventoryWidget;
 };
