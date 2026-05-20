@@ -5,6 +5,8 @@
 #include "MySlateCharacter.h"
 #include "Animation/CurveSequence.h"
 #include "FSlatePracticeStyle.h"
+#include "SCustomComboBox.h"
+#include "SStatBar.h"
 #include "Inventory/SInventoryGrid.h"
 #include "Styling/AppStyle.h"
 #include "Widgets/SInvalidationPanel.h"
@@ -22,7 +24,6 @@ void SMyHUD::Construct(const FArguments& InArgs)
 	[
 		SNew(SInvalidationPanel)
 		[
-
 			SNew(SOverlay)
 
 			+ SOverlay::Slot()
@@ -69,13 +70,27 @@ void SMyHUD::Construct(const FArguments& InArgs)
 
 			+ SOverlay::Slot()
 			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SBox)
+				.WidthOverride(300.f)
+				.HeightOverride(500.f)
+				[
+					SNew(SCustomComboBox)
+					.DesiredWidth(300.f)
+					.HeaderHeight(24.f)
+				]
+			]
+
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Bottom)
 			.Padding(0.f, 0.f, 0.f, 30.f)
 			[
 				SAssignNew(ArmorRingWidget, SArmorRing)
 				.ArmorPercent(this, &SMyHUD::GetArmorPercent)
 			]
-			
+
 			// + SOverlay::Slot()
 			// .HAlign(HAlign_Left)
 			// .VAlign(VAlign_Top)
@@ -93,6 +108,7 @@ void SMyHUD::OnHealthChanged(const float NewHealth, float const MaxHealth)
 	if (const auto NewPercent = NewHealth / MaxHealth; !FMath::IsNearlyEqual(CachedHealthPercent, NewPercent))
 	{
 		CachedHealthPercent = NewPercent;
+		StatBarWidget->SetCurrentValue(NewHealth);
 		Invalidate(EInvalidateWidgetReason::Paint);
 	}
 }
@@ -101,7 +117,7 @@ void SMyHUD::OnAmmoChanged(int32 NewAmmo, int32 MaxAmmo)
 {
 	const auto NewText = FText::Format(
 		INVTEXT("{0} / {1}"), NewAmmo, MaxAmmo);
-	
+
 	if (!NewText.EqualTo(CachedAmmoText))
 	{
 		CachedAmmoText = NewText;
@@ -147,7 +163,7 @@ EActiveTimerReturnType SMyHUD::TimerCallback(double InCurrentTime, float InDelta
 TOptional<float> SMyHUD::GetHealthPercent() const
 {
 	if (!OwningCharacter.IsValid()) return 0.f;
-	
+
 	return FMath::Clamp(CachedHealthPercent, 0.f, 1.f);
 }
 
