@@ -27,7 +27,8 @@ public class SlateLearning : ModuleRules
 			ModuleDirectory + "/Public",
 			ModuleDirectory + "/Public/Narrative",
 			ModuleDirectory + "/Public/UI",
-			ModuleDirectory + "/Public/Inventory"
+			ModuleDirectory + "/Public/Inventory",
+			ModuleDirectory + "/Public/UI/Structs"
 		});
 
 		// Uncomment if you are using online features
