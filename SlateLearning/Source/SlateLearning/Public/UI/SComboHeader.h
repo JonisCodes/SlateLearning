@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FComboBoxItem.h"
+#include "SCustomComboBox.h"
 #include "Widgets/SLeafWidget.h"
 
 struct FComboBoxItem;
@@ -16,11 +17,20 @@ public:
 	SLATE_BEGIN_ARGS(SComboHeader)
 			: _BackgroundColor(FLinearColor(0.f, 0.f, 0.f, 0.5f))
 			  , _DesiredWidth(300.f)
+			  , _FontColor(FLinearColor::Black)
+			  , _ArrowColor(FLinearColor::Black)
+			  , _HeaderBrush(FCoreStyle::Get().GetBrush("WhiteBrush"))
+			  , _HeaderFont(FCoreStyle::Get().GetFontStyle("NormalText"))
 		{
 		}
 
 		SLATE_ARGUMENT(FLinearColor, BackgroundColor)
 		SLATE_ARGUMENT(float, DesiredWidth)
+		SLATE_ARGUMENT(FLinearColor, FontColor)
+		SLATE_ARGUMENT(FLinearColor, ArrowColor)
+		SLATE_ARGUMENT(const FSlateBrush*, HeaderBrush)
+		SLATE_ARGUMENT(FSlateFontInfo, HeaderFont)
+
 		SLATE_EVENT(FSimpleDelegate, OnHeaderClicked)
 	SLATE_END_ARGS()
 
@@ -39,12 +49,23 @@ public:
 	FString GetSelectedElement() const;
 	void SetSelectedItem(const FComboBoxItem& NewItem);
 
+	void SetHeaderColor(const FLinearColor NewHeaderColor);
+	void SetFontColor(const FLinearColor NewFontColor);
+	void SetArrowColor(const FLinearColor NewArrowColor);
+	void SetHeaderBrush(const FSlateBrush* NewHeaderBrush);
+	void SetHeaderFont(const FSlateFontInfo NewHeaderFont);
+
 	bool bIsOpen = false;
 
-	FLinearColor BackgroundColor;
 	float DesiredWidth;
 	FSimpleDelegate OnHeaderClicked;
 
 private:
 	FComboBoxItem SelectedItem;
+
+	FLinearColor BackgroundColor = FLinearColor::White;
+	FLinearColor FontColor = FLinearColor::Black;
+	FLinearColor ArrowColor = FLinearColor::Black;
+	const FSlateBrush* HeaderBrush = nullptr;
+	FSlateFontInfo HeaderFont;
 };

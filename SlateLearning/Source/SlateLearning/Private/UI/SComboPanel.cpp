@@ -14,35 +14,49 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SComboPanel::Construct(const FArguments& InArgs)
 {
 	OnRowSelected = InArgs._OnRowSelected;
+	PanelHeight = InArgs._PanelHeight;
+	PanelColor = InArgs._PanelColor;
+	SearchBoxHeight = InArgs._SearchBoxHeight;
+	RowFont = InArgs._RowFont;
 
 	ChildSlot
 	[
 		SNew(SBox)
-		.HeightOverride(476.f)
+		.HeightOverride(PanelHeight)
 		[
 			SNew(SOverlay)
 
+			// Panel background
 			+ SOverlay::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SImage)
-				.ColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 0.5f))
-				.Image(FCoreStyle::Get().GetBrush("WhiteBrush"))
+				.ColorAndOpacity_Lambda([this]()
+				{
+					return PanelColor;
+				})
+				.Image_Lambda([this]()
+				{
+					return PanelBrush;
+				})
 			]
 
+			// Search box
 			+ SOverlay::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Top)
 			[
 				SAssignNew(SearchBox, SComboSearchBox)
 				.OnTextChangedDelegate(this, &SComboPanel::OnTextChanged)
+				.SearchBoxHeight(SearchBoxHeight)
 			]
 
+			// Scroll box
 			+ SOverlay::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
-			.Padding(0.f, 24.f, 0.f, 0.f)
+			.Padding(0.f, SearchBoxHeight, 0.f, 0.f)
 			[
 				SAssignNew(ScrollBox, SScrollBox)
 			]
@@ -61,6 +75,7 @@ void SComboPanel::AddElement(const FComboBoxItem& InItem)
 		SAssignNew(Row, SCustomComboRow)
 		.Item(InItem)
 		.OnRowClicked(this, &SComboPanel::OnRowClicked)
+		.Font(RowFont)
 	];
 
 	ComboRows.Add(Row);
@@ -75,19 +90,6 @@ void SComboPanel::OnTextChanged(const FText& Text) const
 {
 	if (!ScrollBox.IsValid()) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Text Changed: %s"), *Text.ToString());
-
-	// for (auto Element : ScrollBox->GetAllChildren())
-	// {
-	// 	if (Text.IsEmpty())
-	// 	{
-	// 		Element->SetVisibility(EVisibility::Visible);
-	// 	}
-	//
-	// 	const FString TextString = Text.ToString();
-	// 	const FString ElementName = Element->Item.DisplayName.ToString();
-	// 	Element->SetVisibility(ElementName.Contains(TextString) ? EVisibility::Visible : EVisibility::Collapsed);
-	// }
 	for (const TSharedPtr<SCustomComboRow>& Row : ComboRows)
 	{
 		const FString ItemName = Row->Item.DisplayName.ToString();
@@ -100,6 +102,36 @@ void SComboPanel::OnPanelOpened() const
 {
 	if (!SearchBox.IsValid()) return;
 	FSlateApplication::Get().SetKeyboardFocus(SearchBox->GetSearchBox(), EFocusCause::SetDirectly);
+}
+
+void SComboPanel::SetPanelHeight(const float InPanelHeight)
+{
+	PanelHeight = InPanelHeight;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboPanel::SetPanelColor(const FLinearColor InPanelColor)
+{
+	PanelColor = InPanelColor;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboPanel::SetSearchBoxHeight(const float InSearchBoxHeight)
+{
+	SearchBoxHeight = InSearchBoxHeight;
+	SearchBox->SetSearchBoxHeight(InSearchBoxHeight);
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboPanel::SetRowFont(const FSlateFontInfo InRowFont)
+{
+	RowFont = InRowFont;
+}
+
+void SComboPanel::SetPanelBrush(const FSlateBrush* InPanelBrush)
+{
+	PanelBrush = InPanelBrush;
+	Invalidate(EInvalidateWidgetReason::Paint);
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION

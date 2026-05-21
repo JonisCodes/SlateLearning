@@ -10,6 +10,7 @@ BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SCustomComboRow::Construct(const FArguments& InArgs)
 {
 	Item = InArgs._Item;
+	Font = InArgs._Font;
 	OnRowClicked = InArgs._OnRowClicked;
 }
 
@@ -17,9 +18,14 @@ int32 SCustomComboRow::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
                                const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements,
                                int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
-	const FSlateFontInfo FontInfo(
-		FCoreStyle::Get().GetFontStyle("NormalText").CompositeFont,
-		14
+	// Background
+	FSlateDrawElement::MakeBox(
+		OutDrawElements,
+		LayerId++,
+		AllottedGeometry.ToPaintGeometry(),
+		FCoreStyle::Get().GetBrush("WhiteBrush"),
+		ESlateDrawEffect::None,
+		Item.BackgroundColor
 	);
 
 	const FVector2D LocalSize = AllottedGeometry.GetLocalSize();
@@ -32,16 +38,17 @@ int32 SCustomComboRow::OnPaint(const FPaintArgs& Args, const FGeometry& Allotted
 			FVector2D(LocalSize.X - TextPadding * 2.f, LocalSize.Y),
 			FSlateLayoutTransform(FVector2D(TextPadding, 0.f))),
 		Item.DisplayName.ToString(),
-		FontInfo,
+		Font,
 		ESlateDrawEffect::None,
-		FLinearColor::Black
+		Item.TextColor
 	);
+
 	return LayerId;
 }
 
 FVector2D SCustomComboRow::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
-	return FVector2D(200.f, 32.f);
+	return FVector2D(300, 32.f);
 }
 
 FReply SCustomComboRow::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)

@@ -107,6 +107,8 @@ void SMyHUD::OnHealthChanged(const float NewHealth, float const MaxHealth)
 {
 	if (const auto NewPercent = NewHealth / MaxHealth; !FMath::IsNearlyEqual(CachedHealthPercent, NewPercent))
 	{
+		if (!StatBarWidget.IsValid()) return;
+
 		CachedHealthPercent = NewPercent;
 		StatBarWidget->SetCurrentValue(NewHealth);
 		Invalidate(EInvalidateWidgetReason::Paint);

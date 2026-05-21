@@ -17,10 +17,12 @@ class SLATELEARNING_API SCustomComboRow : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SCustomComboRow)
+			: _Font(FCoreStyle::Get().GetFontStyle("NormalText"))
 		{
 		}
 
 		SLATE_ARGUMENT(FComboBoxItem, Item)
+		SLATE_ARGUMENT(FSlateFontInfo, Font)
 		SLATE_EVENT(FOnRowClicked, OnRowClicked)
 	SLATE_END_ARGS()
 
@@ -37,4 +39,5 @@ public:
 
 	FComboBoxItem Item;
 	FOnRowClicked OnRowClicked;
+	FSlateFontInfo Font;
 };

@@ -15,17 +15,26 @@ void SComboSearchBox::OnTextChanged(const FText& Text) const
 void SComboSearchBox::Construct(const FArguments& InArgs)
 {
 	OnTextChangedDelegate = InArgs._OnTextChangedDelegate;
+	SearchBoxHeight = InArgs._SearchBoxHeight;
 
 	ChildSlot
 	[
 		SNew(SBox)
-		.HeightOverride(24.f)
+		.HeightOverride_Lambda([this]()
+		{
+			return SearchBoxHeight;
+		})
 		[
 			SAssignNew(SearchBox, SEditableTextBox)
 			.HintText(FText::FromString("Search Text"))
 			.OnTextChanged(this, &SComboSearchBox::OnTextChanged)
 		]
 	];
+}
+
+void SComboSearchBox::SetSearchBoxHeight(const float InSearchBoxHeight)
+{
+	SearchBoxHeight = InSearchBoxHeight;
 }
 
 /*

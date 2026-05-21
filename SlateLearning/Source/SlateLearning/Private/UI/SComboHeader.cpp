@@ -3,6 +3,7 @@
 
 #include "SComboHeader.h"
 
+#include "SEditorViewportToolBarMenu.h"
 #include "SlateOptMacros.h"
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -12,8 +13,11 @@ void SComboHeader::Construct(const FArguments& InArgs)
 	BackgroundColor = InArgs._BackgroundColor;
 	DesiredWidth = InArgs._DesiredWidth;
 	OnHeaderClicked = InArgs._OnHeaderClicked;
+	FontColor = InArgs._FontColor;
+	ArrowColor = InArgs._ArrowColor;
+	HeaderBrush = InArgs._HeaderBrush;
+	HeaderFont = InArgs._HeaderFont;
 }
-
 
 int32 SComboHeader::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry,
                             const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements,
@@ -26,7 +30,7 @@ int32 SComboHeader::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeo
 		OutDrawElements,
 		RetLayer++,
 		AllottedGeometry.ToPaintGeometry(),
-		FCoreStyle::Get().GetBrush("WhiteBrush"),
+		HeaderBrush,
 		ESlateDrawEffect::None,
 		BackgroundColor
 	);
@@ -48,9 +52,9 @@ int32 SComboHeader::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeo
 			FVector2D(LocalSize.X - TextPadding * 2.f, LocalSize.Y),
 			FSlateLayoutTransform(FVector2D(TextPadding, 0.f))),
 		GetSelectedElement(),
-		FontInfo,
+		HeaderFont,
 		ESlateDrawEffect::None,
-		FLinearColor::Black
+		FontColor
 	);
 	// ------- END -------
 
@@ -64,7 +68,7 @@ int32 SComboHeader::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeo
 		FText::FromString(bIsOpen ? TEXT("▲") : TEXT("▼")),
 		FontInfo,
 		ESlateDrawEffect::None,
-		FLinearColor::Black
+		ArrowColor
 	);
 	// ------- END -------
 
@@ -100,6 +104,36 @@ FString SComboHeader::GetSelectedElement() const
 void SComboHeader::SetSelectedItem(const FComboBoxItem& NewItem)
 {
 	SelectedItem = NewItem;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboHeader::SetHeaderColor(const FLinearColor NewHeaderColor)
+{
+	BackgroundColor = NewHeaderColor;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboHeader::SetFontColor(const FLinearColor NewFontColor)
+{
+	FontColor = NewFontColor;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboHeader::SetArrowColor(const FLinearColor NewArrowColor)
+{
+	ArrowColor = NewArrowColor;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboHeader::SetHeaderBrush(const FSlateBrush* NewHeaderBrush)
+{
+	HeaderBrush = NewHeaderBrush;
+	Invalidate(EInvalidateWidgetReason::Paint);
+}
+
+void SComboHeader::SetHeaderFont(const FSlateFontInfo NewHeaderFont)
+{
+	HeaderFont = NewHeaderFont;
 	Invalidate(EInvalidateWidgetReason::Paint);
 }
 

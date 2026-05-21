@@ -14,10 +14,12 @@ class SLATELEARNING_API SComboSearchBox : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SComboSearchBox)
+			: _SearchBoxHeight(24.f)
 		{
 		}
 
 		SLATE_EVENT(FOnTextChanged, OnTextChangedDelegate)
+		SLATE_ARGUMENT(float, SearchBoxHeight)
 	SLATE_END_ARGS()
 
 	void OnTextChanged(const FText& Text) const;
@@ -26,7 +28,13 @@ public:
 
 	TSharedPtr<SEditableTextBox> GetSearchBox() const { return SearchBox; }
 
+	float GetSearchBoxHeight() const { return SearchBoxHeight; }
+
+	void SetSearchBoxHeight(const float InSearchBoxHeight);
+
 private:
 	TSharedPtr<SEditableTextBox> SearchBox;
 	FOnTextChanged OnTextChangedDelegate;
+
+	float SearchBoxHeight = 24.f;
 };

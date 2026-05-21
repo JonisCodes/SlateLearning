@@ -6,6 +6,7 @@
 #include "FComboBoxItem.h"
 #include "SComboHeader.h"
 #include "SComboPanel.h"
+#include "SEditorViewportToolBarMenu.h"
 #include "SlateOptMacros.h"
 #include "Widgets/SCanvas.h"
 
@@ -29,7 +30,16 @@ void SCustomComboBox::Construct(const FArguments& InArgs)
 {
 	DesiredWidth = InArgs._DesiredWidth;
 	HeaderHeight = InArgs._HeaderHeight;
+	SearchBoxHeight = InArgs._SearchBoxHeight;
+	PanelHeight = InArgs._PanelHeight;
+	PanelColor = InArgs._PanelColor;
+	HeaderColor = InArgs._HeaderColor;
+	HeaderFontColor = InArgs._HeaderFontColor;
+	HeaderArrowColor = InArgs._HeaderArrowColor;
+	HeaderBrush = InArgs._HeaderBrush;
+	bOpenComboBox = InArgs._bOpenComboBox;
 
+	OnSelectionChanged = InArgs._OnSelectionChanged;
 
 	ChildSlot
 	[
@@ -38,38 +48,42 @@ void SCustomComboBox::Construct(const FArguments& InArgs)
 		// header first = lower Z
 		+ SCanvas::Slot()
 		.Position(FVector2D(0, 0))
-		.Size(FVector2D(DesiredWidth, HeaderHeight))
+		.Size_Lambda([this]()
+		{
+			return FVector2D(DesiredWidth, HeaderHeight);
+		})
 		[
 			SAssignNew(ComboHeader, SComboHeader)
 			.DesiredWidth(DesiredWidth)
-			.BackgroundColor(FLinearColor(1.f, 1.f, 1.f, 0.9f))
+			.BackgroundColor(HeaderColor)
 			.OnHeaderClicked(this, &SCustomComboBox::ToggleComboBox)
+			.FontColor(HeaderFontColor)
+			.ArrowColor(HeaderArrowColor)
+			.HeaderFont(HeaderFont)
 		]
 
 		// panel second = higher Z, floats on top
 		+ SCanvas::Slot()
-		.Position(FVector2D(0, HeaderHeight))
-		.Size(FVector2D(DesiredWidth, 476.f))
+		.Position_Lambda([this]()
+		{
+			return FVector2D(0, HeaderHeight);
+		})
+		.Size_Lambda([this]()
+		{
+			return FVector2D(DesiredWidth, PanelHeight);
+		})
 		[
 			SAssignNew(ComboPanel, SComboPanel)
-			.Visibility(EVisibility::Collapsed)
+			.Visibility_Lambda([this]()
+			{
+				return bOpenComboBox ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed;
+			})
 			.OnRowSelected(this, &SCustomComboBox::OnRowSelected)
+			.SearchBoxHeight(SearchBoxHeight)
+			.PanelColor(PanelColor)
+			.PanelHeight(PanelHeight)
 		]
 	];
-
-	FComboBoxItem ElementOne;
-	ElementOne.DisplayName = FText(INVTEXT("Test One"));
-	AddItem(ElementOne);
-
-	FComboBoxItem ElementTwo;
-	ElementTwo.DisplayName = FText(INVTEXT("Test Two"));
-	AddItem(ElementTwo);
-
-	FComboBoxItem ElementThree;
-	ElementThree.DisplayName = FText(INVTEXT("Test Three"));
-	AddItem(ElementThree);
-
-	// AddItem
 }
 
 SCustomComboBox::~SCustomComboBox()
@@ -82,19 +96,12 @@ SCustomComboBox::~SCustomComboBox()
 
 FReply SCustomComboBox::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	// if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	// {
-	// 	const FVector2D LocalPos = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-	// 	const float Height = ComboHeader->GetCachedGeometry().GetLocalSize().Y;
-	//
-	// 	if (LocalPos.Y <= Height)
-	// 	{
-	// 		ToggleComboBox();
-	// 		return FReply::Handled();
-	// 	}
-	// }
-
 	return FReply::Unhandled();
+}
+
+FVector2D SCustomComboBox::ComputeDesiredSize(float LayoutScaleMultiplier) const
+{
+	return FVector2D(DesiredWidth, HeaderHeight);
 }
 
 void SCustomComboBox::OpenComboBox()
@@ -112,6 +119,7 @@ void SCustomComboBox::CloseComboBox()
 	if (!ComboPanel.IsValid()) return;
 
 	if (!bIsOpen) return;
+
 	ComboPanel->SetVisibility(EVisibility::Collapsed);
 	bIsOpen = false;
 	FSlateApplication::Get().OnApplicationMousePreInputButtonDownListener().Remove(MouseDownHandle);
@@ -122,7 +130,7 @@ void SCustomComboBox::ToggleComboBox()
 {
 	bIsOpen = !bIsOpen;
 	UE_LOG(LogTemp, Warning, TEXT("ToggleOpen: %s"), bIsOpen ? TEXT("Open") : TEXT("Closed"))
-	ComboPanel->SetVisibility(bIsOpen ? EVisibility::Visible : EVisibility::Collapsed);
+	ComboPanel->SetVisibility(bIsOpen ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed);
 	if (bIsOpen)
 	{
 		MouseDownHandle = FSlateApplication::Get().OnApplicationMousePreInputButtonDownListener().AddSP(
@@ -141,13 +149,108 @@ void SCustomComboBox::OnRowSelected(const FComboBoxItem& Item)
 {
 	CurrentSelectedItem = Item;
 	ComboHeader->SetSelectedItem(Item);
-	ToggleComboBox();
+	OnSelectionChanged.ExecuteIfBound(CurrentSelectedItem);
+	CloseComboBox();
 }
 
 void SCustomComboBox::AddItem(const FComboBoxItem& Item) const
 {
 	if (!ComboPanel.IsValid()) return;
 	ComboPanel->AddElement(Item);
+}
+
+void SCustomComboBox::SetDesiredWidth(const float InDesiredWidth)
+{
+	DesiredWidth = InDesiredWidth;
+}
+
+void SCustomComboBox::SetHeaderHeight(const float InHeaderHeight)
+{
+	HeaderHeight = InHeaderHeight;
+}
+
+void SCustomComboBox::SetPanelHeight(const float InPanelHeight)
+{
+	if (!ComboPanel.IsValid()) return;
+
+	PanelHeight = InPanelHeight;
+	ComboPanel->SetPanelHeight(InPanelHeight);
+}
+
+void SCustomComboBox::SetSearchBoxHeight(const float InSearchBoxHeight)
+{
+	if (!ComboPanel.IsValid()) return;
+
+	SearchBoxHeight = InSearchBoxHeight;
+	ComboPanel->SetSearchBoxHeight(InSearchBoxHeight);
+}
+
+void SCustomComboBox::SetPanelColor(const FLinearColor InPanelColor)
+{
+	if (!ComboPanel.IsValid()) return;
+
+	PanelColor = InPanelColor;
+	ComboPanel->SetPanelColor(PanelColor);
+}
+
+void SCustomComboBox::SetHeaderColor(const FLinearColor InHeaderColor)
+{
+	if (!ComboHeader.IsValid()) return;
+
+	HeaderColor = InHeaderColor;
+	ComboHeader->SetHeaderColor(HeaderColor);
+}
+
+void SCustomComboBox::SetHeaderFontColor(const FLinearColor InHeaderFontColor)
+{
+	if (!ComboHeader.IsValid()) return;
+
+	HeaderFontColor = InHeaderFontColor;
+	ComboHeader->SetFontColor(HeaderFontColor);
+}
+
+void SCustomComboBox::SetHeaderArrowColor(const FLinearColor InHeaderArrowColor)
+{
+	if (!ComboHeader.IsValid()) return;
+
+	HeaderArrowColor = InHeaderArrowColor;
+	ComboHeader->SetArrowColor(HeaderArrowColor);
+}
+
+void SCustomComboBox::SetHeaderBrush(const FSlateBrush* InHeaderBrush)
+{
+	if (!ComboHeader.IsValid()) return;
+
+	HeaderBrush = InHeaderBrush;
+	ComboHeader->SetHeaderBrush(HeaderBrush);
+}
+
+void SCustomComboBox::SetPanelBrush(FSlateBrush* InPanelBrush)
+{
+	if (!ComboPanel.IsValid()) return;
+	PanelBrush = InPanelBrush;
+	ComboPanel->SetPanelBrush(PanelBrush);
+}
+
+void SCustomComboBox::SetHeaderFont(const FSlateFontInfo InHeaderFont)
+{
+	if (!ComboHeader.IsValid()) return;
+
+	HeaderFont = InHeaderFont;
+	ComboHeader->SetHeaderFont(HeaderFont);
+}
+
+void SCustomComboBox::SetRowFont(const FSlateFontInfo InRowFont)
+{
+	if (!ComboPanel.IsValid()) return;
+
+	RowFont = InRowFont;
+	ComboPanel->SetRowFont(RowFont);
+}
+
+void SCustomComboBox::SetOpenComboBox(const bool bOpen)
+{
+	bOpenComboBox = bOpen;
 }
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
