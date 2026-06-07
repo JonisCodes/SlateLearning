@@ -30,6 +30,7 @@ public class SlateLearning : ModuleRules
 			ModuleDirectory + "/Public/UI/Structs",
 			ModuleDirectory + "/Public/UI/UMG",
 			ModuleDirectory + "/Public/Inventory",
+			ModuleDirectory + "/Public/UI/RadialMenu",
 		});
 
 		// Uncomment if you are using online features

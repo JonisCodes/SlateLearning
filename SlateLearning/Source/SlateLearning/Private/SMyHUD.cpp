@@ -6,6 +6,7 @@
 #include "Animation/CurveSequence.h"
 #include "FSlatePracticeStyle.h"
 #include "SCustomComboBox.h"
+#include "SRadialMenu.h"
 #include "SStatBar.h"
 #include "Inventory/SInventoryGrid.h"
 #include "Styling/AppStyle.h"
@@ -68,19 +69,23 @@ void SMyHUD::Construct(const FArguments& InArgs)
 				.ColorAndOpacity(FLinearColor::White)
 			]
 
-			+ SOverlay::Slot()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			[
-				SNew(SBox)
-				.WidthOverride(300.f)
-				.HeightOverride(500.f)
-				[
-					SNew(SCustomComboBox)
-					.DesiredWidth(300.f)
-					.HeaderHeight(24.f)
-				]
-			]
+			// + SOverlay::Slot()
+			// .HAlign(HAlign_Center)
+			// .VAlign(VAlign_Center)
+			// [
+			// 	SNew(SBox)
+			// 	.WidthOverride(600.f)
+			// 	.HeightOverride(600.f)
+			// 	[
+			// 		// SNew(SCustomComboBox)
+			// 		// .DesiredWidth(300.f)
+			// 		// .HeaderHeight(24.f)
+			// 		SNew(SRadialMenu)
+			// 		.NumSegments(8)
+			// 		.OuterRadius(300)
+			//
+			// 	]
+			// ]
 
 			+ SOverlay::Slot()
 			.HAlign(HAlign_Center)
@@ -90,6 +95,7 @@ void SMyHUD::Construct(const FArguments& InArgs)
 				SAssignNew(ArmorRingWidget, SArmorRing)
 				.ArmorPercent(this, &SMyHUD::GetArmorPercent)
 			]
+
 
 			// + SOverlay::Slot()
 			// .HAlign(HAlign_Left)
